@@ -4,6 +4,7 @@ import at.markus.EmoteGuesserBackend.document.Pictures;
 import at.markus.EmoteGuesserBackend.repositories.PictureRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +20,7 @@ import java.util.Random;
 @FieldDefaults(level= AccessLevel.PRIVATE)
 public class PictureRouter {
     String accessKey = "usahd9720hd23807d23g2h8ofbgv24876fv24809fb2480fbn0ofhb<o83rg32ad78ashd8co89awhf9ofhaloifhf789obvaoisdzbvösadcvbasipf";
-    Random rng= new Random();;
+    Random rng;
 
     @Autowired
     PictureRepository pictureRepository;
@@ -35,6 +36,7 @@ public class PictureRouter {
     @PostMapping("/random")
     public Pictures getRandom(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(accessKey)) {
+            rng = new Random();
             return pictureRepository.findAll().get(rng.nextInt(pictureRepository.findAll().size()));
         }
         return null;
