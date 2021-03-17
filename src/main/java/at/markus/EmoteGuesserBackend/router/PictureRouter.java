@@ -40,7 +40,7 @@ public class PictureRouter {
         return null;
     }
 
-    @PostMapping("/set")
+    @PostMapping("/add")
     public void setNewUser(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(accessKey)){
             pictureRepository.insert(new Pictures(json.get("URL"),json.get("name")));

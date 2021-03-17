@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/EmoteGuesser/users/")
@@ -16,7 +17,7 @@ public class UserRouter {
     @Autowired
     UserRepository userRepository;
 
-    @PostMapping("/user")
+    @PostMapping("/all")
     public List<User> getAll(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(accessKey)) {
             return userRepository.findAll();
@@ -24,11 +25,27 @@ public class UserRouter {
         return null;
     }
 
-    @PostMapping("/set")
-    public void setNewUser(@RequestBody HashMap<String,String> json){
+    @PostMapping("/add")
+    public void addUser(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(accessKey)){
             User u = new User(userRepository.findAll().size()+1,json.get("ID"),json.get("name"));
             userRepository.insert(u);
         }
     }
+    @PostMapping("/check")
+    public HashMap<String,String> checkUser(@RequestBody HashMap<String,String> json){
+        if(json.get("key").equals(accessKey)){
+            List<User> users = userRepository.findAll();
+
+            for(User user : users){
+                if(user.getUserId().equals(json.get("ID"))&&(user.getName().equals(json.get("name")))){
+                    return (HashMap<String, String>) Map.of("user","unavailable");
+                }
+            }
+
+            return (HashMap<String, String>) Map.of("user","available");
+        }
+        return null;
+    }
+
 }
