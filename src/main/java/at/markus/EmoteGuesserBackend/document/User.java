@@ -17,8 +17,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 public class User{
-    @Id
-    Integer objectId;
     @Field
     String userId;
     @Field
