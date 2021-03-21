@@ -13,24 +13,13 @@ import java.util.List;
 
 @Document("StreakGame")
 @FieldDefaults(level= AccessLevel.PRIVATE)
+@AllArgsConstructor
 @Data
 public class StreakGame {
-    @Autowired
-    UserRepository userRepository;
-
     @Field
     int streak;
     @Field
-    User user;
-
-    public  StreakGame(int streak, String name,String userID){
-        this.streak = streak;
-
-        List<User> userList= userRepository.findAll();
-        for(User user:userList){
-            if(user.getName().equals(name)&&user.getUserId().equals(userID)){
-                this.user  = user;
-            };
-        }
-    }
+    String username;
+    @Field
+    String userID;
 }

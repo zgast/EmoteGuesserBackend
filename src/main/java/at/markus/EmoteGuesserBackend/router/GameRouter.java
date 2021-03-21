@@ -40,22 +40,11 @@ public class GameRouter {
         }
     }
 
-    @PostMapping("/timegame/add")
+    @PostMapping("/time/add")
     public void addTimeGame(@RequestBody HashMap<String,String> json){
-        String name = json.get("userID"), userID = json.get("username");
-
         if(json.get("key").equals(accessKey)){
-            User player = null;
-            List<User> userList= userRepository.findAll();
-            for(User user:userList){
-                if(user.getName().equals(name)&&user.getUserId().equals(userID)){
-                    player  = user;
-                };
-            }
-
-            TimeGame tg = new TimeGame(Integer.parseInt(json.get("guessed")),player );
+            TimeGame tg = new TimeGame(Integer.parseInt(json.get("guessed")),json.get("username"),json.get("userID") );
             timeGameRepository.insert(tg);
-            System.out.println("luö");
         }
     }
 }

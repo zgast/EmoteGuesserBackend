@@ -19,5 +19,7 @@ public class TimeGame {
     @Field
     int guessed;
     @Field
-    User user;
+    String username;
+    @Field
+    String userID;
 }

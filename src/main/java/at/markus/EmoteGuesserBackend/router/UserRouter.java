@@ -28,7 +28,7 @@ public class UserRouter {
     @PostMapping("/add")
     public void addUser(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(accessKey)){
-            User u = new User(json.get("ID"),json.get("name"));
+            User u = new User(json.get("userID"),json.get("username"));
             userRepository.insert(u);
         }
     }
@@ -38,7 +38,7 @@ public class UserRouter {
             List<User> users = userRepository.findAll();
 
             for(User user : users){
-                if(user.getUserId().equals(json.get("ID"))&&(user.getName().equals(json.get("name")))){
+                if(user.getUserId().equals(json.get("userID"))&&(user.getName().equals(json.get("username")))){
                     return Map.of("user","unavailable");
                 }
             }
