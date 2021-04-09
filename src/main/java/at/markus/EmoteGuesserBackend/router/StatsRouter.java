@@ -38,7 +38,7 @@ public class StatsRouter {
             int streakGames = streakGameRepository.findAll().size();
             int streakGuessed = 0;
             for(StreakGame sg: streakGameRepository.findAll()){
-                streakGuessed+=sg.getStreak();
+                streakGuessed+=sg.getGuessed();
             }
             int timeGames = timeGameRepository.findAll().size();
             int timeGuessed=0;
@@ -66,7 +66,7 @@ public class StatsRouter {
             for(StreakGame sg: streakGameRepository.findAll()){
                 if(sg.getUsername().equals(userName)&&sg.getUserID().equals(userID)){
                     streakGames++;
-                    streakGuessed+=sg.getStreak();
+                    streakGuessed+=sg.getGuessed();
                 }
             }
 

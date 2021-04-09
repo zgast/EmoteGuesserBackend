@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/EmoteGuesser/users/")
@@ -16,6 +17,8 @@ public class UserRouter {
 
     @Autowired
     UserRepository userRepository;
+
+    private Random rng = new Random();
 
     @PostMapping("/all")
     public List<User> getAll(@RequestBody HashMap<String,String> json){
@@ -26,26 +29,29 @@ public class UserRouter {
     }
 
     @PostMapping("/add")
-    public void addUser(@RequestBody HashMap<String,String> json){
+    public int addUser(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(accessKey)){
-            User u = new User(json.get("userID"),json.get("username"));
-            userRepository.insert(u);
-        }
-    }
-    @PostMapping("/check")
-    public Map<String, String> checkUser(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(accessKey)){
+            var bool = true;
             List<User> users = userRepository.findAll();
+            int ID = 69420;
 
-            for(User user : users){
-                if(user.getUserId().equals(json.get("userID"))&&(user.getName().equals(json.get("username")))){
-                    return Map.of("user","unavailable");
+            while(bool){
+                 ID = rng.nextInt(9999);
+
+                for(User user : users){
+                    if(!(user.getUserId().equals(String.valueOf(ID))&&(user.getName().equals(json.get("username"))))){
+                        bool = false;
+                    }
                 }
             }
 
-            return Map.of("user","available");
+            User u = new User(String.valueOf(ID),json.get("username"));
+            userRepository.insert(u);
+
+            return ID;
         }
-        return null;
+        return 69420;
     }
+
 
 }
