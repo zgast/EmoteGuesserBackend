@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -61,23 +62,39 @@ public class StatsRouter {
             String userID = json.get("userID");
             String userName = json.get("username");
 
+
+            List<StreakGame> listSG = null;
+            List<TimeGame> listTG = null;
+            try{
+                 listSG= streakGameRepository.findAll();
+                 listTG= timeGameRepository.findAll();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
             int streakGames= 0;
             int streakGuessed= 0;
-            for(StreakGame sg: streakGameRepository.findAll()){
-                if(sg.getUsername().equals(userName)&&sg.getUserID().equals(userID)){
-                    streakGames++;
-                    streakGuessed+=sg.getGuessed();
+            if(listSG!=null){
+                for(StreakGame sg: listSG){
+                    if(sg.getUsername().equals(userName)&&sg.getUserID().equals(userID)){
+                        streakGames++;
+                        streakGuessed+=sg.getGuessed();
+                    }
                 }
             }
 
+
             int timeGames= 0;
             int timeGuessed= 0;
-            for(TimeGame tg: timeGameRepository.findAll()){
-                if(tg.getUsername().equals(userName)&&tg.getUserID().equals(userID)){
-                    timeGames++;
-                    timeGuessed+=tg.getGuessed();
+            if(listTG!=null){
+                for(TimeGame tg: listTG){
+                    if(tg.getUsername().equals(userName)&&tg.getUserID().equals(userID)){
+                        timeGames++;
+                        timeGuessed+=tg.getGuessed();
+                    }
                 }
             }
+
             return Map.of("streakGames",streakGames,
                     "streakGuessed",streakGuessed,
                     "timeGames",timeGames,

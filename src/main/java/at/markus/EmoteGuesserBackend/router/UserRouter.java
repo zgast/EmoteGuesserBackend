@@ -5,6 +5,7 @@ import at.markus.EmoteGuesserBackend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class UserRouter {
     }
 
     @PostMapping("/add")
-    public int addUser(@RequestBody HashMap<String,String> json){
+    public Map<String, String> addUser(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(accessKey)){
             var bool = true;
             List<User> users = userRepository.findAll();
@@ -44,13 +45,24 @@ public class UserRouter {
                     }
                 }
             }
-
-            User u = new User(String.valueOf(ID),json.get("username"));
+            String token = createToken(20);
+            User u = new User(String.valueOf(ID),json.get("username"),token);
             userRepository.insert(u);
 
-            return ID;
+            return Map.of("userID",String.valueOf(ID),
+                    "token",token);
         }
-        return 69420;
+        return null;
+    }
+
+    public static String createToken(int length){
+        final String allowedChars = "0123456789abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOP";
+        SecureRandom random = new SecureRandom();
+        StringBuilder pass = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            pass.append(allowedChars.charAt(random.nextInt(allowedChars.length())));
+        }
+        return pass.toString();
     }
 
 

@@ -21,4 +21,6 @@ public class User{
     String userId;
     @Field
     String name;
+    @Field
+    String token;
 }
