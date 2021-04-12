@@ -1,5 +1,6 @@
 package at.markus.EmoteGuesserBackend.router;
 
+import at.markus.EmoteGuesserBackend.Keys;
 import at.markus.EmoteGuesserBackend.document.StreakGame;
 import at.markus.EmoteGuesserBackend.document.TimeGame;
 import at.markus.EmoteGuesserBackend.repositories.StreakGameRepository;
@@ -19,7 +20,6 @@ import java.util.HashMap;
 @RequestMapping("/EmoteGuesser/game/")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GameRouter {
-    String accessKey = "usahd9720hd23807d23g2h8ofbgv24876fv24809fb2480fbn0ofhb<o83rg32ad78ashd8co89awhf9ofhaloifhf789obvaoisdzbvösadcvbasipf";
     @Autowired
     StreakGameRepository streakGameRepository;
     @Autowired
@@ -27,7 +27,7 @@ public class GameRouter {
 
     @PostMapping("/streak/add")
     public void addStreakGame(@RequestBody HashMap<String, String> json) {
-        if (json.get("key").equals(accessKey)) {
+        if (json.get("key").equals(Keys.normal)) {
             StreakGame sg = new StreakGame(Integer.parseInt(json.get("guessed")), json.get("username"), json.get("userID"));
             streakGameRepository.insert(sg);
         }
@@ -35,7 +35,7 @@ public class GameRouter {
 
     @PostMapping("/time/add")
     public void addTimeGame(@RequestBody HashMap<String, String> json) {
-        if (json.get("key").equals(accessKey)) {
+        if (json.get("key").equals(Keys.normal)) {
             TimeGame tg = new TimeGame(Integer.parseInt(json.get("guessed")), json.get("username"), json.get("userID"));
             timeGameRepository.insert(tg);
         }

@@ -1,6 +1,7 @@
 package at.markus.EmoteGuesserBackend.router;
 
 
+import at.markus.EmoteGuesserBackend.Keys;
 import at.markus.EmoteGuesserBackend.document.Stats;
 import at.markus.EmoteGuesserBackend.document.StreakGame;
 import at.markus.EmoteGuesserBackend.document.TimeGame;
@@ -21,7 +22,6 @@ import java.util.Map;
 @RequestMapping("/EmoteGuesser/stats/")
 @FieldDefaults(level= AccessLevel.PRIVATE)
 public class StatsRouter {
-    String accessKey = "usahd9720hd23807d23g2h8ofbgv24876fv24809fb2480fbn0ofhb<o83rg32ad78ashd8co89awhf9ofhaloifhf789obvaoisdzbvösadcvbasipf";
     @Autowired
     PictureRepository pictureRepository;
     @Autowired
@@ -35,7 +35,7 @@ public class StatsRouter {
 
     @PostMapping("/all")
     public Stats addStreakGame(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(accessKey)){
+        if(json.get("key").equals(Keys.stats)){
             int streakGames = streakGameRepository.findAll().size();
             int streakGuessed = 0;
             for(StreakGame sg: streakGameRepository.findAll()){
@@ -58,7 +58,7 @@ public class StatsRouter {
 
     @PostMapping("/user")
     public Map<String, Integer> userStats(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(accessKey)){
+        if(json.get("key").equals(Keys.normal)){
             String userID = json.get("userID");
             String userName = json.get("username");
 
