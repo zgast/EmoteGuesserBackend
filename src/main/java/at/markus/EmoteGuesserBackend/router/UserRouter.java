@@ -48,7 +48,7 @@ public class UserRouter {
                 }
             }else{
                 ID = rng.nextInt(9999);
-                first = false;
+                first = true;
             }
 
 

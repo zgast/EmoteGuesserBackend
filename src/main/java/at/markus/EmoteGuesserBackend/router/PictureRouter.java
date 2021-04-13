@@ -42,7 +42,7 @@ public class PictureRouter {
 
     @PostMapping("/add")
     public void setNewUser(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(Keys.normal)){
+        if(json.get("key").equals(Keys.stats)){
             pictureRepository.insert(new Pictures(json.get("URL"),json.get("name")));
         }
     }
