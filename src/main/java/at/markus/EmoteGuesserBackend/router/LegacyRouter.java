@@ -11,9 +11,9 @@ public class LegacyRouter {
 
     @GetMapping("/get")
     public Map<String, String> getRandom() {
-        HashMap<String, String> map = new HashMap<>();
-        map.put("picture", "https://blog.cdn.own3d.tv/resize=fit:crop,height:400,width:600/Dm78XXKlTkGJdpOVvIkn");
-        map.put("name", "pepeHands");
-        return map;
+        return Map.of(
+                "picture", "https://blog.cdn.own3d.tv/resize=fit:crop,height:400,width:600/Dm78XXKlTkGJdpOVvIkn",
+                "name", "pepeHands"
+        );
     }
 }
