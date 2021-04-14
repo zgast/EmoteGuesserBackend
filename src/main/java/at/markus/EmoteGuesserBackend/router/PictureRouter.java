@@ -35,7 +35,8 @@ public class PictureRouter {
     @PostMapping("/random")
     public Pictures getRandom(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(Keys.normal)) {
-            return pictureRepository.findAll().get(rng.nextInt((int) pictureRepository.count()));
+            List<Pictures> pictures = pictureRepository.findAll();
+            return pictures.get(rng.nextInt(pictures.size()));
         }
         return null;
     }
