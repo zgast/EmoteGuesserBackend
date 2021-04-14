@@ -36,20 +36,18 @@ public class StatsRouter {
     @PostMapping("/all")
     public Stats addStreakGame(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(Keys.stats)){
-            int streakGames = streakGameRepository.findAll().size();
-            int streakGuessed = 0;
-            for(StreakGame sg: streakGameRepository.findAll()){
-                streakGuessed+=sg.getGuessed();
-            }
-            int timeGames = timeGameRepository.findAll().size();
-            int timeGuessed=0;
-            for(TimeGame tg : timeGameRepository.findAll()){
-                timeGuessed+=tg.getGuessed();
-            }
-            int player = userRepository.findAll().size();
-            int pictures = pictureRepository.findAll().size();
+            List<StreakGame> streakGames = streakGameRepository.findAll();
+            int streakGamesSize = streakGames.size();
+            int streakGuessed = streakGames.stream().map(StreakGame::getGuessed).reduce(0, Integer::sum);
 
-            Stats stat = new Stats(streakGames,streakGuessed,timeGames,timeGuessed,player,pictures);
+            List<TimeGame> timeGames = timeGameRepository.findAll();
+            int timeGamesSize = timeGames.size();
+            int timeGuessed = timeGames.stream().map(TimeGame::getGuessed).reduce(0, Integer::sum);
+
+            long player = userRepository.count();
+            long pictures = pictureRepository.count();
+
+            Stats stat = new Stats(streakGamesSize,streakGuessed,timeGamesSize,timeGuessed,(int) player, (int) pictures);
             statsRepository.insert(stat);
             return stat;
         }
@@ -62,43 +60,18 @@ public class StatsRouter {
             String userID = json.get("userID");
             String userName = json.get("username");
 
+            List<StreakGame> streaks = streakGameRepository.findByUsernameAndUserID(userName, userID);
+            List<TimeGame> times = timeGameRepository.findByUsernameAndUserID(userName, userID);
 
-            List<StreakGame> listSG = null;
-            List<TimeGame> listTG = null;
-            try{
-                 listSG= streakGameRepository.findAll();
-                 listTG= timeGameRepository.findAll();
-            }catch(Exception e){
-                e.printStackTrace();
-            }
+            int streakGuessed = streaks.stream().map(StreakGame::getGuessed).reduce(0, Integer::sum);
+            int timeGuessed = times.stream().map(TimeGame::getGuessed).reduce(0, Integer::sum);
 
-            int streakGames= 0;
-            int streakGuessed= 0;
-            if(listSG!=null){
-                for(StreakGame sg: listSG){
-                    if(sg.getUsername().equals(userName)&&sg.getUserID().equals(userID)){
-                        streakGames++;
-                        streakGuessed+=sg.getGuessed();
-                    }
-                }
-            }
-
-
-            int timeGames= 0;
-            int timeGuessed= 0;
-            if(listTG!=null){
-                for(TimeGame tg: listTG){
-                    if(tg.getUsername().equals(userName)&&tg.getUserID().equals(userID)){
-                        timeGames++;
-                        timeGuessed+=tg.getGuessed();
-                    }
-                }
-            }
-
-            return Map.of("streakGames",streakGames,
+            return Map.of(
+                    "streakGames", streaks.size(),
                     "streakGuessed",streakGuessed,
-                    "timeGames",timeGames,
-                    "timeGuessed",timeGuessed);
+                    "timeGames", times.size(),
+                    "timeGuessed",timeGuessed
+            );
         }
         return null;
     }

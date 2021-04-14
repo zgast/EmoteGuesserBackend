@@ -19,7 +19,7 @@ import java.util.Random;
 @RequestMapping("/EmoteGuesser/pictures/")
 @FieldDefaults(level= AccessLevel.PRIVATE)
 public class PictureRouter {
-    Random rng= new Random();;
+    Random rng= new Random();
 
     @Autowired
     PictureRepository pictureRepository;
@@ -35,7 +35,7 @@ public class PictureRouter {
     @PostMapping("/random")
     public Pictures getRandom(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(Keys.normal)) {
-            return pictureRepository.findAll().get(rng.nextInt(pictureRepository.findAll().size()));
+            return pictureRepository.findAll().get(rng.nextInt((int) pictureRepository.count()));
         }
         return null;
     }

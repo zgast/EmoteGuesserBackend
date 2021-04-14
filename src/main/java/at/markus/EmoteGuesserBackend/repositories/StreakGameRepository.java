@@ -3,6 +3,8 @@ package at.markus.EmoteGuesserBackend.repositories;
 import at.markus.EmoteGuesserBackend.document.StreakGame;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface
-StreakGameRepository extends MongoRepository<StreakGame, String> {
+import java.util.List;
+
+public interface StreakGameRepository extends MongoRepository<StreakGame, String> {
+    List<StreakGame> findByUsernameAndUserID(String username, String userId);
 }
