@@ -53,18 +53,20 @@ public class GameRouter {
     }
 
     private void updateBest (String userId, ComparableStat stat) {
-        UserStats best = userStatsRepository.getByUserId(userId);
-        if (best == null)
-            best = new UserStats(userId, "", "");
+        if (!userStatsRepository.existsById(userId)) {
+            userStatsRepository.insert(new UserStats(userId, "", ""));
+            return;
+        }
+        UserStats best = userStatsRepository.findById(userId).get();
         if (stat instanceof TimeGame) {
             Optional<TimeGame> other = timeGameRepository.findById(best.getBestTimeGame());
-            if (other.isPresent() && stat.compare(other.get().getGuessed()))
+            if ((other.isPresent() && other.get().compare(((TimeGame) stat).getGuessed())) || other.isEmpty())
                 best.setBestTimeGame(stat.getId());
         } else if (stat instanceof StreakGame) {
             Optional<StreakGame> other = streakGameRepository.findById(best.getBestStreakGame());
-            if (other.isPresent() && stat.compare(other.get().getGuessed()))
+            if ((other.isPresent() && other.get().compare(((StreakGame) stat).getGuessed())) || other.isEmpty())
                 best.setBestStreakGame(stat.getId());
         }
-        userStatsRepository.insert(best);
+        userStatsRepository.save(best);
     }
 }

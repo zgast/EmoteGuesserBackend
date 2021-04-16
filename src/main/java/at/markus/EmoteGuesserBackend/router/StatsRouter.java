@@ -7,6 +7,7 @@ import at.markus.EmoteGuesserBackend.document.StreakGame;
 import at.markus.EmoteGuesserBackend.document.TimeGame;
 import at.markus.EmoteGuesserBackend.document.UserStats;
 import at.markus.EmoteGuesserBackend.repositories.*;
+import at.markus.EmoteGuesserBackend.response.UserStatsResponse;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -82,18 +84,18 @@ public class StatsRouter {
     }
 
     @PostMapping("/global")
-    public List<Map<String, Integer>> globalStats (@RequestBody HashMap<String,String> json) {
+    public List<UserStatsResponse> globalStats (@RequestBody HashMap<String,String> json) {
         if(json.get("key").equals(Keys.normal)){
             Pageable pageable = PageRequest.of(0, 100);
             return userRepository.findAll(pageable).stream().map(user -> {
-                UserStats userStats = userStatsRepository.getByUserId(user.getUserId());
-                if (userStats == null)
-                    return null;
-                Map<String, Integer> map = new HashMap<>();
-                timeGameRepository.findById(userStats.getBestTimeGame()).ifPresent(game -> map.put("timeGame", game.getGuessed()));
-                streakGameRepository.findById(userStats.getBestStreakGame()).ifPresent(game -> map.put("streakGame", game.getGuessed()));
+                Optional<UserStats> userStats = userStatsRepository.findById(user.getUserId());
+                UserStatsResponse.UserStatsResponseBuilder response = UserStatsResponse.builder().username(user.getName());
+                userStats.ifPresent(stats -> {
+                    timeGameRepository.findById(stats.getBestTimeGame()).ifPresent(game -> response.timeGame(game.getGuessed()));
+                    streakGameRepository.findById(stats.getBestStreakGame()).ifPresent(game -> response.streakGame(game.getGuessed()));
+                });
 
-                return map;
+                return response.build();
             }).collect(Collectors.toList());
         }
         return null;
