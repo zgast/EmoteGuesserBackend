@@ -52,8 +52,12 @@ public class GameRouter {
     }
 
     private void updateStats(int guessed, String username, String userId, Game game ) {
-        if (!userStatsRepository.existsById(userId)) {
-            userStatsRepository.insert(new UserStats(userId, username, "0", "0", "0", "0"));
+        if (!userStatsRepository.existsByUsernameAndUserId(username,userId)) {
+            if(game == Game.StreakGame){
+                userStatsRepository.insert(new UserStats(userId, username, "1", "0", String.valueOf(guessed), "0"));
+            }else{
+                userStatsRepository.insert(new UserStats(userId, username, "0", "1", "0", String.valueOf(guessed)));
+            }
             return;
         }
 

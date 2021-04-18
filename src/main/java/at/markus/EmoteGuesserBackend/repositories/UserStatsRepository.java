@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface UserStatsRepository extends MongoRepository<UserStats, String> {
     List<UserStats> findByUsernameAndUserId(String username, String userId);
+    boolean existsByUsernameAndUserId(String username, String userId);
 }
