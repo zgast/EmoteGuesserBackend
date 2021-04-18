@@ -6,9 +6,8 @@ import at.markus.EmoteGuesserBackend.document.TimeGame;
 import at.markus.EmoteGuesserBackend.document.UserStats;
 import at.markus.EmoteGuesserBackend.repositories.StreakGameRepository;
 import at.markus.EmoteGuesserBackend.repositories.TimeGameRepository;
-import at.markus.EmoteGuesserBackend.repositories.UserRepository;
 import at.markus.EmoteGuesserBackend.repositories.UserStatsRepository;
-import at.markus.EmoteGuesserBackend.util.ComparableStat;
+import at.markus.EmoteGuesserBackend.util.Game;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Time;
 import java.util.HashMap;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/EmoteGuesser/game/")
@@ -36,9 +33,10 @@ public class GameRouter {
     public void addStreakGame(@RequestBody HashMap<String, String> json) {
         if (json.get("key").equals(Keys.normal)) {
             String userId = json.get("userID");
-            StreakGame sg = new StreakGame(Integer.parseInt(json.get("guessed")), json.get("username"), userId);
-            streakGameRepository.insert(sg);
-            updateBest(userId, sg);
+            String username = json.get("username");
+            int guessed = Integer.parseInt(json.get("guessed"));
+
+            updateStats(guessed, username,userId, Game.StreakGame);
         }
     }
 
@@ -46,27 +44,35 @@ public class GameRouter {
     public void addTimeGame(@RequestBody HashMap<String, String> json) {
         if (json.get("key").equals(Keys.normal)) {
             String userId = json.get("userID");
-            TimeGame tg = new TimeGame(Integer.parseInt(json.get("guessed")), json.get("username"), json.get("userID"));
-            timeGameRepository.insert(tg);
-            updateBest(userId, tg);
+            String username = json.get("username");
+            int guessed = Integer.parseInt(json.get("guessed"));
+
+            updateStats(guessed, username,userId, Game.TimeGame);
         }
     }
 
-    private void updateBest (String userId, ComparableStat stat) {
+    private void updateStats(int guessed, String username, String userId, Game game ) {
         if (!userStatsRepository.existsById(userId)) {
-            userStatsRepository.insert(new UserStats(userId, "", ""));
+            userStatsRepository.insert(new UserStats(userId, username, "0", "0", "0", "0"));
             return;
         }
-        UserStats best = userStatsRepository.findById(userId).get();
-        if (stat instanceof TimeGame) {
-            Optional<TimeGame> other = timeGameRepository.findById(best.getBestTimeGame());
-            if ((other.isPresent() && other.get().compare(((TimeGame) stat).getGuessed())) || other.isEmpty())
-                best.setBestTimeGame(stat.getId());
-        } else if (stat instanceof StreakGame) {
-            Optional<StreakGame> other = streakGameRepository.findById(best.getBestStreakGame());
-            if ((other.isPresent() && other.get().compare(((StreakGame) stat).getGuessed())) || other.isEmpty())
-                best.setBestStreakGame(stat.getId());
+
+        UserStats stats = userStatsRepository.findByUsernameAndUserId(username,userId).get(0);
+
+        if(game == Game.StreakGame){
+            double avgStreak = Double.parseDouble(stats.getAvgStreakGame());
+            int streakGames = Integer.parseInt(stats.getStreakGames());
+
+            stats.setAvgStreakGame(Double.toString((((avgStreak*streakGames)+guessed + 0d) / (streakGames+1d))));
+            stats.setStreakGames(String.valueOf(streakGames+1));
+        }else{
+            double avgTime = Double.parseDouble(stats.getAvgTimeGame());
+            int timeGames = Integer.parseInt(stats.getTimeGames());
+
+            stats.setAvgTimeGame(Double.toString((((avgTime*timeGames)+guessed + 0d) / (timeGames+1d))));
+            stats.setTimeGames(String.valueOf(timeGames+1));
         }
-        userStatsRepository.save(best);
+
+        userStatsRepository.save(stats);
     }
 }

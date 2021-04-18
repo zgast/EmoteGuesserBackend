@@ -16,7 +16,13 @@ public class UserStats {
     @Id
     String userId;
     @Field
-    private String bestStreakGame;
+    String username;
     @Field
-    private String bestTimeGame;
+    String streakGames;
+    @Field
+    String timeGames;
+    @Field
+    String avgStreakGame;
+    @Field
+    String avgTimeGame;
 }

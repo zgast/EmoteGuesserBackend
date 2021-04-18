@@ -40,6 +40,7 @@ public class StatsRouter {
     StatsRepository statsRepository;
     @Autowired
     UserStatsRepository userStatsRepository;
+
     @PostMapping("/all")
     public Stats addStreakGame(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(Keys.stats)){
@@ -62,22 +63,18 @@ public class StatsRouter {
     }
 
     @PostMapping("/user")
-    public Map<String, Integer> userStats(@RequestBody HashMap<String,String> json){
+    public Map<String, String> userStats(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(Keys.normal)){
             String userID = json.get("userID");
             String userName = json.get("username");
 
-            List<StreakGame> streaks = streakGameRepository.findByUsernameAndUserID(userName, userID);
-            List<TimeGame> times = timeGameRepository.findByUsernameAndUserID(userName, userID);
-
-            int streakGuessed = streaks.stream().map(StreakGame::getGuessed).reduce(0, Integer::sum);
-            int timeGuessed = times.stream().map(TimeGame::getGuessed).reduce(0, Integer::sum);
+            UserStats stats = userStatsRepository.findByUsernameAndUserId(userName,userID).get(0);
 
             return Map.of(
-                    "streakGames", streaks.size(),
-                    "streakGuessed",streakGuessed,
-                    "timeGames", times.size(),
-                    "timeGuessed",timeGuessed
+                    "streakGames", stats.getStreakGames(),
+                    "streakGuessed",stats.getAvgStreakGame(),
+                    "timeGames", stats.getTimeGames(),
+                    "timeGuessed",stats.getAvgTimeGame()
             );
         }
         return null;
@@ -91,8 +88,8 @@ public class StatsRouter {
                 Optional<UserStats> userStats = userStatsRepository.findById(user.getUserId());
                 UserStatsResponse.UserStatsResponseBuilder response = UserStatsResponse.builder().username(user.getName());
                 userStats.ifPresent(stats -> {
-                    timeGameRepository.findById(stats.getBestTimeGame()).ifPresent(game -> response.timeGame(game.getGuessed()));
-                    streakGameRepository.findById(stats.getBestStreakGame()).ifPresent(game -> response.streakGame(game.getGuessed()));
+                    timeGameRepository.findById(stats.getAvgTimeGame()).ifPresent(game -> response.timeGame(game.getGuessed()));
+                    streakGameRepository.findById(stats.getStreakGames()).ifPresent(game -> response.streakGame(game.getGuessed()));
                 });
 
                 return response.build();

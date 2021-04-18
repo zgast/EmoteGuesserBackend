@@ -1,8 +1,6 @@
 package at.markus.EmoteGuesserBackend.document;
 
-import at.markus.EmoteGuesserBackend.util.ComparableStat;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @FieldDefaults(level= AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 @Data
-public class StreakGame implements ComparableStat {
+public class StreakGame {
     @Id
     String id;
     @Field
