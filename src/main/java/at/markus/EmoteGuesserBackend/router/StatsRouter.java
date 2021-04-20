@@ -5,10 +5,14 @@ import at.markus.EmoteGuesserBackend.Keys;
 import at.markus.EmoteGuesserBackend.document.Stats;
 import at.markus.EmoteGuesserBackend.document.StreakGame;
 import at.markus.EmoteGuesserBackend.document.TimeGame;
+import at.markus.EmoteGuesserBackend.document.UserStats;
 import at.markus.EmoteGuesserBackend.repositories.*;
+import at.markus.EmoteGuesserBackend.response.UserStatsResponse;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/EmoteGuesser/stats/")
@@ -32,6 +38,8 @@ public class StatsRouter {
     TimeGameRepository timeGameRepository;
     @Autowired
     StatsRepository statsRepository;
+    @Autowired
+    UserStatsRepository userStatsRepository;
 
     @PostMapping("/all")
     public Stats addStreakGame(@RequestBody HashMap<String,String> json){
@@ -55,25 +63,38 @@ public class StatsRouter {
     }
 
     @PostMapping("/user")
-    public Map<String, Integer> userStats(@RequestBody HashMap<String,String> json){
+    public Map<String, String> userStats(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(Keys.normal)){
             String userID = json.get("userID");
             String userName = json.get("username");
 
-            List<StreakGame> streaks = streakGameRepository.findByUsernameAndUserID(userName, userID);
-            List<TimeGame> times = timeGameRepository.findByUsernameAndUserID(userName, userID);
-
-            int streakGuessed = streaks.stream().map(StreakGame::getGuessed).reduce(0, Integer::sum);
-            int timeGuessed = times.stream().map(TimeGame::getGuessed).reduce(0, Integer::sum);
+            UserStats stats = userStatsRepository.findByUsernameAndUserId(userName,userID).get(0);
 
             return Map.of(
-                    "streakGames", streaks.size(),
-                    "streakGuessed",streakGuessed,
-                    "timeGames", times.size(),
-                    "timeGuessed",timeGuessed
+                    "streakGames", stats.getStreakGames(),
+                    "streakGuessed",stats.getAvgStreakGame(),
+                    "timeGames", stats.getTimeGames(),
+                    "timeGuessed",stats.getAvgTimeGame()
             );
         }
         return null;
     }
 
+    @PostMapping("/global")
+    public List<UserStatsResponse> globalStats (@RequestBody HashMap<String,String> json) {
+        if(json.get("key").equals(Keys.normal)){
+            Pageable pageable = PageRequest.of(0, 100);
+            return userRepository.findAll(pageable).stream().map(user -> {
+                Optional<UserStats> userStats = userStatsRepository.findById(user.getUserId());
+                UserStatsResponse.UserStatsResponseBuilder response = UserStatsResponse.builder().username(user.getName());
+                userStats.ifPresent(stats -> {
+                    timeGameRepository.findById(stats.getAvgTimeGame()).ifPresent(game -> response.timeGame(game.getGuessed()));
+                    streakGameRepository.findById(stats.getStreakGames()).ifPresent(game -> response.streakGame(game.getGuessed()));
+                });
+
+                return response.build();
+            }).collect(Collectors.toList());
+        }
+        return null;
+    }
 }

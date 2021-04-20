@@ -32,31 +32,23 @@ public class UserRouter {
     @PostMapping("/add")
     public Map<String, String> addUser(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(Keys.normal)){
-            var bool = true;
-            int ID = 69420;
-            if(first){
-                List<User> users = userRepository.findAll();
+            String username = json.get("username");
+            String id = null;
 
-                while (bool) {
-                    ID = rng.nextInt(9999);
+            boolean bool = true;
+            while (bool){
+                id = String.valueOf(rng.nextInt(999999999));
+                String finalId = id;
+                bool = userRepository.findAll().stream().
+                        anyMatch(User -> User.getUserId().equals(finalId)&&User.getName().equals(username));
 
-                    for (User user : users) {
-                        if (!(user.getUserId().equals(String.valueOf(ID)) && (user.getName().equals(json.get("username"))))) {
-                            bool = false;
-                        }
-                    }
-                }
-            }else{
-                ID = rng.nextInt(9999);
-                first = true;
             }
 
-
             String token = createToken(20);
-            User u = new User(String.valueOf(ID),json.get("username"),token);
+            User u = new User(id,json.get("username"),token);
             userRepository.insert(u);
 
-            return Map.of("userID",String.valueOf(ID),
+            return Map.of("userID", id,
                     "token",token);
         }
         return null;
