@@ -18,10 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -67,14 +64,36 @@ public class StatsRouter {
         if(json.get("key").equals(Keys.normal)){
             String userID = json.get("userID");
             String userName = json.get("username");
+            UserStats stats = null;
+            int streakGlobal = 0;
+            int timeGlobal = 0;
 
-            UserStats stats = userStatsRepository.findByUsernameAndUserId(userName,userID).get(0);
+            List<UserStats> list = userStatsRepository.findAll();
+            list.sort(Comparator.comparing(UserStats -> Double.parseDouble(UserStats.getAvgStreakGame())));
+
+            for(int i=list.size()-1;i>0;i--){
+                streakGlobal++;
+                if(list.get(i).getUsername().equals(userName)&&list.get(i).getUserId().equals(userID)){
+                    stats = list.get(i);
+                    break;
+                }
+            }
+
+            list.sort(Comparator.comparing(UserStats -> Double.parseDouble(UserStats.getAvgTimeGame())));
+            for(int i=list.size()-1;i>0;i--){
+                timeGlobal++;
+                if(list.get(i).getUsername().equals(userName)&&list.get(i).getUserId().equals(userID)){
+                    break;
+                }
+            }
 
             return Map.of(
                     "streakGames", stats.getStreakGames(),
                     "streakGuessed",stats.getAvgStreakGame(),
+                    "streakGlobal",String.valueOf(streakGlobal),
                     "timeGames", stats.getTimeGames(),
-                    "timeGuessed",stats.getAvgTimeGame()
+                    "timeGuessed",stats.getAvgTimeGame(),
+                    "timeGlobal",String.valueOf(timeGlobal)
             );
         }
         return null;
