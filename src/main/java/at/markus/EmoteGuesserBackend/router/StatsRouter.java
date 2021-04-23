@@ -1,7 +1,7 @@
 package at.markus.EmoteGuesserBackend.router;
 
 
-import at.markus.EmoteGuesserBackend.Keys;
+import at.markus.EmoteGuesserBackend.security.Keys;
 import at.markus.EmoteGuesserBackend.document.Stats;
 import at.markus.EmoteGuesserBackend.document.StreakGame;
 import at.markus.EmoteGuesserBackend.document.TimeGame;
@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/EmoteGuesser/stats/")
+@RequestMapping("/emote-guesser/stats/")
 @FieldDefaults(level= AccessLevel.PRIVATE)
 public class StatsRouter {
     @Autowired
@@ -40,7 +40,7 @@ public class StatsRouter {
 
     @PostMapping("/all")
     public Stats addStreakGame(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(Keys.stats)){
+        if(json.get("key").equals(Keys.STATS)){
             List<StreakGame> streakGames = streakGameRepository.findAll();
             int streakGamesSize = streakGames.size();
             int streakGuessed = streakGames.stream().map(StreakGame::getGuessed).reduce(0, Integer::sum);
@@ -61,7 +61,7 @@ public class StatsRouter {
 
     @PostMapping("/user")
     public Map<String, String> userStats(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(Keys.normal)){
+        if(json.get("key").equals(Keys.NORMAL)){
             String userID = json.get("userID");
             String userName = json.get("username");
             UserStats stats = null;
@@ -101,7 +101,7 @@ public class StatsRouter {
 
     @PostMapping("/global")
     public List<UserStatsResponse> globalStats (@RequestBody HashMap<String,String> json) {
-        if(json.get("key").equals(Keys.normal)){
+        if(json.get("key").equals(Keys.NORMAL)){
             Pageable pageable = PageRequest.of(0, 100);
             return userRepository.findAll(pageable).stream().map(user -> {
                 Optional<UserStats> userStats = userStatsRepository.findById(user.getUserId());

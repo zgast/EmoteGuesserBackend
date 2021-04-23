@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/EmoteGuesser/legacy")
+@RequestMapping("/emote-guesser/legacy")
 public class LegacyRouter {
 
     @GetMapping("/get")

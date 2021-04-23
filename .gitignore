@@ -7,6 +7,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+/src/main/java/at/markus/EmoteGuesserBackend/security/Keys.java
 ### STS ###
 .apt_generated
 .classpath
@@ -34,3 +35,7 @@ build/
 
 ### VS Code ###
 .vscode/
+application.properties
+src/main/java/at/markus/EmoteGuesserBackend/security/Keys.java
+src/main/java/at/markus/EmoteGuesserBackend/security/Keys.java
+src/main/java/at/markus/EmoteGuesserBackend/security/Keys.java

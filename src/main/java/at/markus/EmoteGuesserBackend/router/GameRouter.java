@@ -1,8 +1,6 @@
 package at.markus.EmoteGuesserBackend.router;
 
-import at.markus.EmoteGuesserBackend.Keys;
-import at.markus.EmoteGuesserBackend.document.StreakGame;
-import at.markus.EmoteGuesserBackend.document.TimeGame;
+import at.markus.EmoteGuesserBackend.security.Keys;
 import at.markus.EmoteGuesserBackend.document.UserStats;
 import at.markus.EmoteGuesserBackend.repositories.StreakGameRepository;
 import at.markus.EmoteGuesserBackend.repositories.TimeGameRepository;
@@ -19,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/EmoteGuesser/game/")
+@RequestMapping("/emote-guesser/game/")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GameRouter {
     @Autowired
@@ -31,7 +29,7 @@ public class GameRouter {
 
     @PostMapping("/streak/add")
     public void addStreakGame(@RequestBody HashMap<String, String> json) {
-        if (json.get("key").equals(Keys.normal)) {
+        if (json.get("key").equals(Keys.NORMAL)) {
             String userId = json.get("userID");
             String username = json.get("username");
             int guessed = Integer.parseInt(json.get("guessed"));
@@ -42,7 +40,7 @@ public class GameRouter {
 
     @PostMapping("/time/add")
     public void addTimeGame(@RequestBody HashMap<String, String> json) {
-        if (json.get("key").equals(Keys.normal)) {
+        if (json.get("key").equals(Keys.NORMAL)) {
             String userId = json.get("userID");
             String username = json.get("username");
             int guessed = Integer.parseInt(json.get("guessed"));
@@ -61,7 +59,7 @@ public class GameRouter {
             return;
         }
 
-        UserStats stats = userStatsRepository.findByUsernameAndUserId(username,userId).get(0);
+        UserStats stats = userStatsRepository.findByUsernameAndUserId(username,userId);
 
         if(game == Game.StreakGame){
             double avgStreak = Double.parseDouble(stats.getAvgStreakGame());
