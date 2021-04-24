@@ -1,6 +1,7 @@
 package at.markus.EmoteGuesserBackend.router;
 
 
+import at.markus.EmoteGuesserBackend.security.JSONWebToken;
 import at.markus.EmoteGuesserBackend.security.Keys;
 import at.markus.EmoteGuesserBackend.document.Stats;
 import at.markus.EmoteGuesserBackend.document.StreakGame;
@@ -62,8 +63,9 @@ public class StatsRouter {
     @PostMapping("/user")
     public Map<String, String> userStats(@RequestBody HashMap<String,String> json){
         if(json.get("key").equals(Keys.NORMAL)){
-            String userID = json.get("userID");
-            String userName = json.get("username");
+            var jwt = JSONWebToken.parse(json.get("jwt"));
+            String userID = jwt.get("userID").asString();
+            String userName = jwt.get("username").asString();
             UserStats stats = null;
             int streakGlobal = 0;
             int timeGlobal = 0;

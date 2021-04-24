@@ -1,9 +1,8 @@
 package at.markus.EmoteGuesserBackend.router;
 
+import at.markus.EmoteGuesserBackend.security.JSONWebToken;
 import at.markus.EmoteGuesserBackend.security.Keys;
 import at.markus.EmoteGuesserBackend.document.UserStats;
-import at.markus.EmoteGuesserBackend.repositories.StreakGameRepository;
-import at.markus.EmoteGuesserBackend.repositories.TimeGameRepository;
 import at.markus.EmoteGuesserBackend.repositories.UserStatsRepository;
 import at.markus.EmoteGuesserBackend.util.Game;
 import lombok.AccessLevel;
@@ -21,44 +20,29 @@ import java.util.HashMap;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GameRouter {
     @Autowired
-    StreakGameRepository streakGameRepository;
-    @Autowired
-    TimeGameRepository timeGameRepository;
-    @Autowired
     UserStatsRepository userStatsRepository;
 
     @PostMapping("/streak/add")
     public void addStreakGame(@RequestBody HashMap<String, String> json) {
         if (json.get("key").equals(Keys.NORMAL)) {
-            String userId = json.get("userID");
-            String username = json.get("username");
+            var jwt = JSONWebToken.parse(json.get("jwt"));
             int guessed = Integer.parseInt(json.get("guessed"));
 
-            updateStats(guessed, username,userId, Game.StreakGame);
+            updateStats(guessed, jwt.get("username").asString(),jwt.get("userID").asString(), Game.StreakGame);
         }
     }
 
     @PostMapping("/time/add")
     public void addTimeGame(@RequestBody HashMap<String, String> json) {
         if (json.get("key").equals(Keys.NORMAL)) {
-            String userId = json.get("userID");
-            String username = json.get("username");
+            var jwt = JSONWebToken.parse(json.get("jwt"));
             int guessed = Integer.parseInt(json.get("guessed"));
 
-            updateStats(guessed, username,userId, Game.TimeGame);
+            updateStats(guessed, jwt.get("username").asString(),jwt.get("userID").asString(), Game.TimeGame);
         }
     }
 
     private void updateStats(int guessed, String username, String userId, Game game ) {
-        if (!userStatsRepository.existsByUsernameAndUserId(username,userId)) {
-            if(game == Game.StreakGame){
-                userStatsRepository.insert(new UserStats(userId, username, "1", "0", String.valueOf(guessed), "0"));
-            }else{
-                userStatsRepository.insert(new UserStats(userId, username, "0", "1", "0", String.valueOf(guessed)));
-            }
-            return;
-        }
-
         UserStats stats = userStatsRepository.findByUsernameAndUserId(username,userId);
 
         if(game == Game.StreakGame){

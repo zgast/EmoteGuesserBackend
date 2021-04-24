@@ -1,5 +1,7 @@
 package at.markus.EmoteGuesserBackend.router;
 
+import at.markus.EmoteGuesserBackend.document.UserStats;
+import at.markus.EmoteGuesserBackend.repositories.UserStatsRepository;
 import at.markus.EmoteGuesserBackend.security.Cryptography;
 import at.markus.EmoteGuesserBackend.security.JSONWebToken;
 import at.markus.EmoteGuesserBackend.security.Keys;
@@ -16,6 +18,8 @@ import java.util.*;
 public class UserRouter {
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    UserStatsRepository userStatsRepository;
 
     private Random rng = new Random();
     private Boolean first = false;
@@ -38,16 +42,28 @@ public class UserRouter {
             while (bool){
                 id = String.valueOf(rng.nextInt(999999999));
                 bool = userRepository.existsByUserIdAndName(id,username);
-
             }
 
             String token = Cryptography.createToken(20);
             User u = new User(id,username, Cryptography.hash(token));
             userRepository.insert(u);
+            userStatsRepository.insert(new UserStats(id, username, "0", "0", "0", "0"));
 
             return Map.of("userID", id,
                     "token",token,
                     "JWT", JSONWebToken.issue(u));
+        }
+        return null;
+    }
+    @PostMapping("/login")
+    public Map<String, String> loginUser(@RequestBody HashMap<String,String> json){
+        if(json.get("key").equals(Keys.NORMAL)){
+            String username = json.get("username");
+            String id = json.get("userID");
+
+            if(userRepository.existsByUserIdAndName(id,username)){
+                return Map.of("JWT", JSONWebToken.issue(userRepository.findByUserIdAndName(id,username)));
+            }
         }
         return null;
     }

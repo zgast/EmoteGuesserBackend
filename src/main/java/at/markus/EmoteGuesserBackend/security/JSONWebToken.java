@@ -23,7 +23,7 @@ public class JSONWebToken {
                 .sign(algorithm);
     }
 
-    public  static Map<String, Claim> check(String token){
+    public  static Map<String, Claim> parse(String token){
         DecodedJWT jwt = verifier.verify(token);
         return jwt.getClaims();
     }
