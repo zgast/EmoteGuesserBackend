@@ -1,5 +1,6 @@
 package at.markus.EmoteGuesserBackend.router;
 
+import at.markus.EmoteGuesserBackend.Routes;
 import at.markus.EmoteGuesserBackend.security.Keys;
 import at.markus.EmoteGuesserBackend.document.Pictures;
 import at.markus.EmoteGuesserBackend.repositories.PictureRepository;
@@ -16,35 +17,25 @@ import java.util.List;
 import java.util.Random;
 
 @RestController
-@RequestMapping("/emote-guesser/pictures/")
-@FieldDefaults(level= AccessLevel.PRIVATE)
+@RequestMapping(Routes.MAIN + Routes.VERSION + "pictures/")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PictureRouter {
-    Random rng= new Random();
+    Random rng = new Random();
 
     @Autowired
     PictureRepository pictureRepository;
 
-    @PostMapping("/all")
-    public List<Pictures> getAll(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(Keys.STATS)) {
-            return pictureRepository.findAll();
-        }
-        return null;
-    }
 
     @PostMapping("/random")
-    public Pictures getRandom(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(Keys.NORMAL)) {
-            List<Pictures> pictures = pictureRepository.findAll();
-            return pictures.get(rng.nextInt(pictures.size()));
-        }
-        return null;
+    public Pictures getRandom(@RequestBody HashMap<String, String> json) {
+        List<Pictures> pictures = pictureRepository.findAll();
+        return pictures.get(rng.nextInt(pictures.size()));
     }
 
-    @PostMapping("/add")
-    public void setNewUser(@RequestBody HashMap<String,String> json){
-        if(json.get("key").equals(Keys.STATS)){
-            pictureRepository.insert(new Pictures(json.get("URL"),json.get("name")));
-        }
+    @PostMapping("/all")
+    public List<Pictures> getAll(@RequestBody HashMap<String, String> json) {
+        return pictureRepository.findAll();
     }
+
+
 }
